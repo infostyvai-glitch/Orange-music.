@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orange Music - Your Music Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500, #ff8c00);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: white;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .content {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .search-btn, .upload-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: #ff6b6b;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover, .upload-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        .song-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .song-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .song-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .song-info h4 {
+            margin-bottom: 5px;
+        }
+
+        .song-controls {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .play-btn, .download-btn, .favorite-btn, .playlist-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn {
+            background: #4caf50;
+            color: white;
+            font-size: 18px;
+        }
+
+        .play-btn.playing {
+            background: #f44336;
+        }
+
+        .download-btn {
+            background: #2196f3;
+            color: white;
+        }
+
+        .favorite-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .playlist-btn {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            padding: 15px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .audio-player.active {
+            display: flex;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-area {
+            border: 3px dashed rgba(255,255,255,0.5);
+            padding: 40px;
+            text-align: center;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .song-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍊 Orange Music</div>
+            <p>Your ultimate music organizer</p>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('home')">
+                <i class="fas fa-home"></i> Home
+            </button>
+            <button class="nav-btn" onclick="showSection('search')">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <button class="nav-btn" onclick="showSection('upload')">
+                <i class="fas fa-upload"></i> Upload
+            </button>
+            <button class="nav-btn" onclick="showSection('songs')">
+                <i class="fas fa-music"></i> Songs
+            </button>
+            <button class="nav-btn" onclick="showSection('favorites')">
+                <i class="fas fa-heart"></i> Favorites
+            </button>
+            <button class="nav-btn" onclick="showSection('downloads')">
+                <i class="fas fa-download"></i> Downloads
+            </button>
+            <button class="nav-btn" onclick="showSection('playlists')">
+                <i class="fas fa-list"></i> Playlists
+            </button>
+        </div>
+
+        <!-- Home Section -->
+        <div id="home" class="content active">
+            <h2>Welcome to Orange Music! 🎵</h2>
+            <p>Organize your songs, search YouTube, upload files, create playlists, and more!</p>
+        </div>
+
+        <!-- Search Section -->
+        <div id="search" class="content">
+            <button class="back-btn" onclick="showSection('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2>🔍 Search Songs</h2>
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search YouTube songs...">
+                <button class="search-btn" onclick="searchYouTube()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div id="searchResults" class="song-list"></div>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="upload" class="content">
+            <button class="back-btn" onclick="showSection('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2>📤 Upload Songs</h2>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 4em; color: #ffd700;"></i>
+                <p>Click to upload audio/video files<br><small>MP3, WAV, MP4 supported</small></p>
+            </div>
+            <input type="file" id="fileInput" class="file-input" multiple accept="audio/*,video/*">
+            <div id="uploadedFiles" class="song-list"></div>
+        </div>
+
+        <!-- Songs Section -->
+        <div id="songs" class="content">
+            <button class="back-btn" onclick="showSection('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2>🎵 My Songs</h2>
+            <div id="songsList" class="song-list">
+                <div class="empty-state">
+                    <i class="fas fa-music" style="font-size: 4em; margin-bottom: 20px;"></i>
+                    <p>No songs yet. Upload some from the Upload section!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites Section -->
+        <div id="favorites" class="content">
+            <button class="back-btn" onclick="showSection('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2>❤️ Favorites</h2>
+            <div id="favoritesList" class="song-list">
+                <div class="empty-state">
+                    <i class="fas fa-heart" style="font-size: 4em; margin-bottom: 20px; color: #ff6b6b;"></i>
+                    <p>No favorite songs yet. Add some!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Downloads Section -->
+        <div id="downloads" class="content">
+            <button class="back-btn" onclick="showSection('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2>⬇️ Downloads</h2>
+            <div id="downloadsList" class="song-list">
+                <div class="empty-state">
+                    <i class="fas fa-download" style="font-size: 4em; margin-bottom: 20px;"></i>
+                    <p>No downloads yet. Download from search results!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playlists Section -->
+        <div id="playlists" class="content">
+            <button class="back-btn" onclick="showSection('home')"><i class="fas fa-arrow-left"></i></button>
+            <h2>📋 Playlists</h2>
+            <div id="playlistsList" class="song-list">
+                <div class="empty-state">
+                    <i class="fas fa-list" style="font-size: 4em; margin-bottom: 20px;"></i>
+                    <p>No playlists yet. Create one!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player -->
+    <div class="audio-player" id="audioPlayer">
+        <i class="fas fa-pause" id="playerControl" style="font-size: 24px; cursor: pointer;" onclick="togglePlayer()"></i>
+        <div style="flex: 1;">
+            <div id="currentSongTitle" style="font-weight: bold;"></div>
+            <div id="currentSongArtist"></div>
+        </div>
+        <audio id="mainPlayer" controls style="width: 300px;"></audio>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSongs = JSON.parse(localStorage.getItem('orangeMusicSongs')) || [];
+        let favorites = JSON.parse(localStorage.getItem('orangeMusicFavorites')) || [];
+        let downloads = JSON.parse(localStorage.getItem('orangeMusicDownloads')) || [];
+        let playlists = JSON.parse(localStorage.getItem('orangeMusicPlaylists')) || [];
+        let currentPlayer = null;
+        let isPlaying = false;
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.closest('.nav-btn')?.classList.add('active');
+            
+            if (sectionId === 'songs') updateSongsList();
+            if (sectionId === 'favorites') updateFavoritesList();
+            if (sectionId === 'downloads') updateDownloadsList();
+        }
+
+        // YouTube Search (Demo - shows mock results)
+        async function searchYouTube() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '<div class="empty-state">Searching...</div>';
+
+            // Mock YouTube search results (in real app, use YouTube API)
+            setTimeout(() => {
+                const mockResults = [
+                    { title: `${query} - Artist 1`, artist: 'Artist 1', thumbnail: 'https://via.placeholder.com/80x80/ff6b6b/ffffff?text=🎵', duration: '3:45', id: 'yt1' },
+                    { title: `${query} - Artist 2`, artist: 'Artist 2', thumbnail: 'https://via.placeholder.com/80x80/ffa500/ffffff?text=🎵', duration: '4:12', id: 'yt2' },
+                    { title: `${query} - Remix`, artist: 'DJ Remix', thumbnail: 'https://via.placeholder.com/80x80/ff8c00/ffffff?text=🎵', duration: '5:30', id: 'yt3' }
+                ];
+
+                resultsDiv.innerHTML = mockResults.map(song => `
+                    <div class="song-item">
+                        <img src="${song.thumbnail}" alt="thumbnail" style="width: 80px; height: 80px; border-radius: 10px;">
+                        <div class="song-info">
+                            <h4>${song.title}</h4>
+                            <p>${song.artist} • ${song.duration}</p>
+                        </div>
+                        <div class="song-controls">
+                            <button class="play-btn" onclick="playSong('${song.title}', '${song.artist}', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="download-btn" onclick="downloadSong('${song.title}', '${song.id}')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="favorite-btn" onclick="addToFavorites('${song.title}', '${song.artist}')">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            <button class="playlist-btn" onclick="addToPlaylist('${song.title}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }, 1000);
+        }
+
+        // File Upload
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const uploadedDiv = document.getElementById('uploadedFiles');
+            
+            files.forEach(file => {
+                const song = {
+                    id: Date.now() + Math.random(),
+                    title: file.name.replace(/\.[^/.]+$/, ""),
+                    artist: 'Uploaded',
+                    file: file,
+                    url: URL.createObjectURL(file),
+                    type: file.type.startsWith('audio') ? 'audio' : 'video',
+                    uploadedAt: new Date().toLocaleString()
+                };
+                
+                currentSongs.unshift(song);
+                localStorage.setItem('orangeMusicSongs', JSON.stringify(currentSongs));
+                
+                uploadedDiv.innerHTML += `
+                    <div class="song-item">
+                        <i class="fas fa-music" style="font-size: 3em; color: #4caf50;"></i>
+                        <div class="song-info">
+                            <h4>${song.title}</h4>
+                            <p>${song.artist} • ${song.type.toUpperCase()}</p>
+                        </div>
+                        <div class="song-controls">
+                            <button class="play-btn" onclick="playSong('${song.title}', '${song.artist}', '${song.url}', '${song.type}')">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        // Play Song
+        function playSong(title, artist, url, type = 'audio') {
+            stopCurrentSong();
+            
+            const player = document.getElementById('mainPlayer');
+            const playerDiv = document.getElementById('audioPlayer');
+            const control = document.getElementById('playerControl');
+            const titleEl = document.getElementById('currentSongTitle');
+            const artistEl = document.getElementById('currentSongArtist');
+            
+            player.src = url;
+            player.load();
+            player.play();
+            
+            titleEl.textContent = title;
+            artistEl.textContent = artist;
+            playerDiv.classList.add('active');
+            control.className = 'fas fa-pause';
+            isPlaying = true;
+            currentPlayer = player;
+        }
+
+        // Toggle Player
+        function togglePlayer() {
+            const player = document.getElementById('mainPlayer');
+            const control = document.getElementById('playerControl');
+            
+            if (isPlaying) {
+                player.pause();
+                control.className = 'fas fa-play';
+                isPlaying = false;
+            } else {
+                player.play();
+                control.className = 'fas fa-pause';
+                isPlaying = true;
+            }
+        }
+
+        // Stop Current Song
+        function stopCurrentSong() {
+            const player = document.getElementById('mainPlayer');
+            player.pause();
+            player.currentTime = 0;
+            document.getElementById('playerControl').className = 'fas fa-play';
+            isPlaying = false;
+        }
+
+        // Download Song (Simulated)
+        function downloadSong(title, id) {
+            alert(`Downloading: ${title}\n\nNote: In a real app, this would trigger actual download. Saved to Downloads section!`);
+            const download = {
+                id: Date.now(),
+                title,
+                id,
+                downloadedAt: new Date().toLocaleString()
+            };
+            downloads.unshift(download);
+            localStorage.setItem('orangeMusicDownloads', JSON.stringify(downloads));
+        }
+
+        // Add to Favorites
+        function addToFavorites(title, artist) {
+            const favorite = { id: Date.now(), title, artist, addedAt: new Date().toLocaleString() };
+            if (!favorites.find(f => f.title === title)) {
+                favorites.unshift(favorite);
+                localStorage.setItem('orangeMusicFavorites', JSON.stringify(favorites));
+                alert(`${title} added to favorites! ❤️`);
+            }
+        }
+
+        // Add to Playlist
+        function addToPlaylist(title) {
+            const playlistName = prompt('Enter playlist name:') || 'My Playlist';
+            let playlist = playlists.find(p => p.name === playlistName);
+            
+            if (!playlist) {
+                playlist = { name: playlistName, songs: [] };
+                playlists.push(playlist);
+            }
+            
+            if (!playlist.songs.find(s => s.title === title)) {
+                playlist.songs.push({ title, addedAt: new Date().toLocaleString() });
+                localStorage.setItem('orangeMusicPlaylists', JSON.stringify(playlists));
+                alert(`${title} added to ${playlistName}!`);
+            }
+        }
+
+        // Update Lists
+        function updateSongsList() {
+            const list = document.getElementById('songsList');
+            if (currentSongs.length === 0) return;
+            
+            list.innerHTML = currentSongs.map(song => `
+                <div class="song-item">
+                    <i class="fas fa-music" style="font-size: 3em; color: #4caf50;"></i>
+                    <div class="song-info">
+                        <h4>${song.title}</h4>
+                        <p>${song.artist} • ${song.uploadedAt}</p>
+                    </div>
+                    <div class="song-controls">
+                        <button class="play-btn" onclick="playSong('${song.title}', '${song.artist}', '${song.url}', '${song.type}')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateFavoritesList() {
+            const list = document.getElementById('favoritesList');
+            if (favorites.length === 0) return;
+            
+            list.innerHTML = favorites.map(song => `
+                <div class="song-item">
+                    <i class="fas fa-heart" style="font-size: 3em; color: #ff6b6b;"></i>
+                    <div class="song-info">
+                        <h4>${song.title}</h4>
+                        <p>${song.artist} • ${song.addedAt}</p>
+                    </div>
+                    <div class="song-controls">
+                        <button class="play-btn" onclick="playSong('${song.title}', '${song.artist}', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateDownloadsList() {
+            const list = document.getElementById('downloadsList');
+            if (downloads.length === 0) return;
+            
+            list.innerHTML = downloads.map(download => `
+                <div class="song-item">
+                    <i class="fas fa-download" style="font-size: 3em; color: #2196f3;"></i>
+                    <div class="song-info">
+                        <h4>${download.title}</h4>
+                        <p>Downloaded: ${download.downloadedAt}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search on Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchYouTube();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSongsList();
+            updateFavoritesList();
+            updateDownloadsList();
+        });
+
+        // Global play button toggle
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.play-btn')) {
+                const btn = e.target.closest('.play-btn');
+                if (btn.classList.contains('playing')) {
+                    btn.classList.remove('playing');
+                    btn.innerHTML = '<i class="fas fa-play"></i>';
+                } else {
+                    document.querySelectorAll('.play-btn').forEach(b => {
+                        b.classList.remove('playing');
+                        b.innerHTML = '<i class="fas fa-play"></i>';
+                    });
+                    btn.classList.add('playing');
+                    btn.innerHTML = '<i class="fas fa-pause"></i>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
